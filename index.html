@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Ajax</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="custom.css">
+</head>
+<body>
+	<div class="container">
+		<h1>Ajax</h1>
+		<div class="btn-group" role="group" aria-label="...">
+			<button id="moredata" class="btn btn-success">More data!</button>
+			<button id="removedata" class="btn btn-danger">Remove old data</button>
+		</div>
+		<div id="newdata"></div>
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script>
+		jQuery( document ).ready(function(){
+
+			// Call ajax on clic button one time
+			$("#moredata").on('click', function(){
+				$("#ajaxdata").noexists( function(){
+					ajaxData();
+				});
+			});
+
+			// Remove the data block
+			$("#removedata").on('click', function(){
+				$("#ajaxdata").exists( function(){
+					$(this).remove();
+				});
+			});
+
+			// Ajax function
+			function ajaxData(){
+				$.ajax({
+				  url: "ajax.json",
+				  type: "GET",
+				  success: function(data) {
+		              buildData(data);
+		          },
+		          error: function(jqXHR, textStatus, error) {
+		              alert( "error: " + jqXHR.responseText);
+		          }
+		        });
+		    }
+
+		    // Build the data retrived by ajax
+		    function buildData(data) {
+		    	var items = [];
+				$.each( data, function( key, val ) {
+				    items.push( "<li id='" + key + "' class='list-group-item'>" + key + ": " + val + "</li>" );
+				});
+				 
+				$( "<ul/>", {
+					"id": "ajaxdata",
+				    "class": "list-group",
+				    html: items.join( "" )
+				}).appendTo( "#newdata" );
+		    }
+
+		    // Help functions
+		    $.fn.exists = function(callback) {
+			    var args = [].slice.call(arguments, 1);
+
+			    if (this.length) {
+			    	callback.call(this, args);
+			    }
+
+			    return this;
+			};
+
+			$.fn.noexists = function(callback) {
+			    var args = [].slice.call(arguments, 1);
+
+			    if ( ! this.length) {
+			    	callback.call(this, args);
+			    }
+
+			    return this;
+			};
+		});
+		
+		// Excute when ajax is sending
+		jQuery( document ).ajaxSend(function() {
+			$("#moredata").attr("disabled", "disabled");
+		});
+
+		// Execute when ajax is done
+		jQuery( document ).ajaxComplete(function() {
+		    $("#moredata").removeAttr("disabled")
+		});
+	</script>
+</body>
+</html>
